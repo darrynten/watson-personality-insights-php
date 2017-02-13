@@ -3,6 +3,7 @@
 namespace DarrynTen\PersonalityInsightsPhp;
 
 use DarrynTen\AnyCache\AnyCache;
+use FindBrok\WatsonBridge\Bridge;
 
 /**
  * Watson Personality Insights Client
@@ -54,9 +55,13 @@ class PersonalityInsights
     {
         $this->config = new Config($config);
         $this->cache = new AnyCache();
-        $this->personalityClient = new PersonalityInsightsClient(
-            $this->config->getPersonalityInsightsConfig()
-        );
+
+        $this->personalityClient = new Bridge('username', 'password', 'http://x.x');
+
+
+        // $this->personalityClient = new PersonalityInsightsClient(
+            // $this->config->getPersonalityInsightsConfig()
+        // );
     }
 
     /**

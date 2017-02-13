@@ -29,6 +29,8 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
         $instance = new PersonalityInsights($config);
 
+        var_dump($instance);
+
         $this->assertEquals(true, $instance->config->cheapskate);
         $instance->setCheapskate(false);
         $this->assertEquals(false, $instance->config->cheapskate);

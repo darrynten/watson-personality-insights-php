@@ -16,11 +16,64 @@ use Psr\Cache\CacheItemPoolInterface;
 class Config
 {
     /**
-     * The project ID
+     * The API endpoint
      *
-     * @var string $projectId
+     * @var string $endpoint
      */
-    private $projectId;
+    private $url;
+
+    /**
+     * Username for the platform
+     *
+     * @var string $username
+     */
+    private $username;
+
+    /**
+     * Password for the service
+     *
+     * @var string $password
+     */
+    private $password;
+
+    /**
+     * Include raw scores
+     *
+     * If true, a raw score in addition to a normalized percentile
+     * is returned for each characteristic; raw scores are not
+     * compared with a sample population. If false (the default),
+     * only normalized percentiles are returned.
+     *
+     * @var boolean $rawScores
+     */
+    private $rawScores = false;
+
+    /**
+     * Include consumption preferences
+     *
+     * If true, information about consumption preferences is returned
+     * with the results; if false (the default), the response does
+     * not include the information.
+     *
+     * @var boolean $includeConsumption
+     */
+    private $includeConsumption = false;
+
+    /**
+     * Version
+     *
+     * The requested version of the response as a date in the format
+     * YYYY-MM-DD
+     *
+     * If you specify a date that is earlier than the initial release
+     * of version 3, the service returns the response format for that
+     * first version. If you specify a date that is in the future or
+     * otherwise later than the most recent version, the service
+     * returns the response format for the latest version.
+     *
+     * @var string $version
+     */
+    private $version;
 
     /**
      * Whether or not to use caching.
@@ -32,20 +85,6 @@ class Config
     public $cache = true;
 
     /**
-     * Cheapskate mode - trim text at 1000 chars
-     *
-     * @var boolean $cheapskate
-     */
-    public $cheapskate = true;
-
-    /**
-     * The scopes
-     *
-     * @var array $scopes
-     */
-    private $scopes;
-
-    /**
      * Construct the config object
      *
      * @param array $config An array of configuration options
@@ -53,23 +92,42 @@ class Config
     public function __construct($config)
     {
         // Throw exceptions on essentials
-        if (!isset($config['projectId']) || empty($config['projectId'])) {
-            throw new CustomException('Missing Watson Personality Insights Project ID');
+        if (!isset($config['url']) || empty($config['url'])) {
+            throw new CustomException('Missing Watson Personality API Endpoint');
         } else {
-            $this->projectId = (string)$config['projectId'];
+            $this->url = (string)$config['url'];
+        }
+
+        if (!isset($config['username']) || empty($config['username'])) {
+            throw new CustomException('Missing Watson Personality API Username');
+        } else {
+            $this->username = (string)$config['username'];
+        }
+
+        if (!isset($config['password']) || empty($config['password'])) {
+            throw new CustomException('Missing Watson Personality API Password');
+        } else {
+            $this->password = (string)$config['password'];
         }
 
         // optionals
-        if (isset($config['cheapskate'])) {
-            $this->cheapskate = (bool)$config['cheapskate'];
-        }
-
         if (isset($config['cache']) && !empty($config['cache'])) {
             $this->cache = (bool)$config['cache'];
         }
 
-        if (isset($config['scopes']) && !empty($config['scopes'])) {
-            $this->scopes = $config['scopes'];
+        // I've stuck with the snake case that IBM use in their queries
+        if (isset($config['raw_scores']) && !empty($config['raw_scores'])) {
+            $this->rawScores = (bool)$config['raw_scores'];
+        }
+
+        if (isset($config['consumption_preferences']) && !empty($config['consumption_preferences'])) {
+            $this->includeConsumption = (bool)$config['consumption_preferences'];
+        }
+
+        if (isset($config['version']) && !empty($config['version'])) {
+            $this->version = (string)$config['version'];
+        } else {
+            $this->version = date('Y-m-d');
         }
     }
 
@@ -78,16 +136,24 @@ class Config
      *
      * @return array
      */
-    public function getPersonalityInsightsConfig()
+    private function getPersonalityInsightsQueryVariables()
     {
-        $config = [
-            'projectId' => $this->projectId
+        $queryParams = [
+          'raw_scores' => $this->rawScores ? 'true' : 'false',
+          'consumption_preferences' => (string)$this->includeConsumption ? 'true' : 'false',
+          'version' => $this->version,
         ];
 
-        if ($this->scopes) {
-            $config['scopes'] = $this->scopes;
-        }
+        return http_build_query($queryParams);
+    }
 
-        return $config;
+    /**
+     * Returns the prepared API endpoint URL
+     *
+     * @return string
+     */
+    public function getQueryUrl()
+    {
+        return $this->url . '/v3/profile?' . $this->getPersonalityInsightsQueryVariables();
     }
 }

@@ -32,18 +32,4 @@ class PersonalityInsightsPhpExceptionTest extends PHPUnit_Framework_TestCase
             )
         );
     }
-
-    public function testCheapskateTriggerException()
-    {
-        $this->expectException(CustomException::class);
-
-        $config = [
-            'projectId' => 'project-id',
-        ];
-
-        $instance = new PersonalityInsights($config);
-
-        $instance->setCheapskate(true);
-        $instance->setText(str_repeat('test ', 1000));
-    }
 }

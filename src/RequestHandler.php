@@ -21,7 +21,7 @@ use GuzzleHttp\Exception\RequestException;
  * @package  PersonalityInsights
  * @author   Darryn Ten <darrynten@github.com>
  */
-class PersonalityInsights
+class RequestHandler
 {
     /**
      * GuzzleHttp Client
@@ -64,10 +64,11 @@ class PersonalityInsights
      * @param string $username The username
      * @param string $password The password
      */
-    public function __construct($username, $password)
+    public function __construct($config)
     {
-        $this->username = $username;
-        $this->password = $password;
+        $this->username = $config['username'];
+        $this->password = $config['password'];
+        $this->url = $config['url'];
 
         $this->client = new Client();
     }
@@ -79,16 +80,15 @@ class PersonalityInsights
      *
      * @throws PersonalityInsightsApiException
      */
-    public function request()
+    public function request(array $options = [], array $parameters = [])
     {
-        $options = [];
         try {
             $response = $this->client->request('POST', $this->url, $options);
             return json_decode($response->getBody());
         } catch (RequestException $exception) {
             $message = $exception->getMessage();
 
-            throw new PersonalityInsightsApiException($message, $exception->getCode(), $exception);
+            throw new CustomException($message, $exception->getCode(), $exception);
         }
     }
 }

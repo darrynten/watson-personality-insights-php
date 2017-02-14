@@ -32,4 +32,27 @@ class PersonalityInsightsPhpExceptionTest extends PHPUnit_Framework_TestCase
             )
         );
     }
+
+    public function testMissingUsername()
+    {
+        $this->expectException(CustomException::class);
+
+        $config = [
+            'url' => 'xx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+    }
+
+    public function testMissingPassword()
+    {
+        $this->expectException(CustomException::class);
+
+        $config = [
+            'url' => 'xx',
+            'username' => 'xx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+    }
 }

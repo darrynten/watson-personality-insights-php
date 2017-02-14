@@ -76,6 +76,17 @@ class Config
     private $version;
 
     /**
+     * CSV Headers
+     *
+     * If true, column labels are returned with a CSV response; if false
+     * (the default), they are not. Applies only when the Accept header
+     * is set to text/csv.
+     *
+     * @var string $csvHeaders
+     */
+    private $csvHeaders = false;
+
+    /**
      * Whether or not to use caching.
      *
      * The default is true as this is a good idea.
@@ -83,6 +94,77 @@ class Config
      * @var boolean $cache
      */
     public $cache = true;
+
+    /**
+     * Request header options
+     */
+
+    /**
+     * Content-Type header
+     *
+     * The content type of the request: plain text, HTML, or JSON
+     * (default) - Per the JSON specification, the default character
+     * encoding for JSON content is effectively always UTF-8; per the
+     * HTTP specification, the default encoding for plain text and HTML
+     * is ISO-8859-1 (effectively, the ASCII character set). When
+     * specifying a content type of plain text or HTML, include the
+     * charset parameter to indicate the character encoding of the input
+     * text, for example, Content-Type: text/plain;charset=utf-8.
+     *
+     * application/json is the default which differs from the docs
+     *
+     * @link https://watson-api-explorer.mybluemix.net/apis/personality-insights-v3
+     *
+     * @var string $contentTypeHeader
+     */
+    private $contentTypeHeader = 'application/json';
+
+    /**
+     * Content-Language header
+     *
+     * Currently `en` (default), `ar`, `es`, `ja` (Feb 2017)
+     *
+     * The language of the input text for the request: Arabic, English,
+     * Spanish, or Japanese. Regional variants are treated as their
+     * parent language; for example, en-US is interpreted as en. The
+     * effect of the Content-Language header depends on the Content-Type
+     * header. When Content-Type is text/plain or text/html,
+     * Content-Language is the only way to specify the language. When
+     * Content-Type is application/json, Content-Language overrides a
+     * language specified with the language parameter of a ContentItem
+     * object, and content items that specify a different language are
+     * ignored; omit this header to base the language on the
+     * specification of the content items. You can specify any
+     * combination of languages for Content-Language and Accept-Language.
+     *
+     * @var string $contentLanguageHeader
+     */
+    private $contentLanguageHeader = 'en';
+
+    /**
+     * Accept header
+     *
+     * Either `application/json` or `text/csv`
+     *
+     * The desired content type of the response: JSON (the default) or
+     * CSV. CSV output includes a fixed number of columns and optional
+     * headers.
+     *
+     * @var string $acceptHeader
+     */
+    private $acceptHeader = 'application/json';
+
+    /**
+     * Accept-Language header
+     *
+     * The desired language of the response. For two-character arguments,
+     * regional variants are treated as their parent language; for
+     * example, en-US is interpreted as en. You can specify any
+     * combination of languages for the input and response content.
+     *
+     * @var string $acceptLanguageHeader
+     */
+    private $acceptLanguageHeader;
 
     /**
      * Construct the config object

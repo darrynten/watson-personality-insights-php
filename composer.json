@@ -6,7 +6,7 @@
     "php": "^5.5.9 || ^7.0",
     "guzzlehttp/guzzle": "^6.2.1",
     "darrynten/any-cache": "^1.0",
-    "findbrok/php-watson-api-bridge": "^1.1"
+    "internations/http-mock": "^0.8.1"
   },
   "require-dev": {
     "phpunit/phpunit": "~5.0",

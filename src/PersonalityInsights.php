@@ -3,7 +3,6 @@
 namespace DarrynTen\PersonalityInsightsPhp;
 
 use DarrynTen\AnyCache\AnyCache;
-use FindBrok\WatsonBridge\Bridge;
 
 /**
  * Watson Personality Insights Client
@@ -16,6 +15,13 @@ use FindBrok\WatsonBridge\Bridge;
  */
 class PersonalityInsights
 {
+    /**
+     * Request handler
+     *
+     * @var RequestHandler $request
+     */
+    private $request;
+
     /**
      * Hold the config option
      *
@@ -47,7 +53,7 @@ class PersonalityInsights
     /**
      * Construct
      *
-     * Bootstraps the config and the cache, then loads the client
+     * Bootstraps the config and the cache, then loads the request handler
      *
      * @param array $config Configuration options
      */
@@ -56,7 +62,7 @@ class PersonalityInsights
         $this->config = new Config($config);
         $this->cache = new AnyCache();
 
-        $this->personalityClient = new Bridge($config['username'], $config['password'], $config['url'] . '/v3/profile');
+        $this->request = new RequestHandler($config);
     }
 
     /**
@@ -78,11 +84,13 @@ class PersonalityInsights
      */
     public function getInsights()
     {
-        // $cacheKey = '__watson_personality_insights_' .
-            // md5($this->originalText) . '_';
+        $cacheKey = '__watson_personality_insights_' .
+            md5($this->originalText) . '_';
 
+        // Temporary
+        //
         // if (!$result = unserialize($this->cache->get($cacheKey))) {
-            $result = $this->personalityClient->post($this->config->getQueryUrl(), json_encode($items), 'json');
+            $result = $this->request->request([], []);
             // $this->cache->put($cacheKey, serialize($result), 9999999);
         // }
 

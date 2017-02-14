@@ -14,6 +14,64 @@ namespace DarrynTen\PersonalityInsightsPhp;
 class Validation
 {
     /**
+     * The valid content types
+     *
+     * Plain text, html, or json
+     *
+     * @var array $validContentTypes
+     */
+    private static $validContentTypes = [
+        'application/json',
+        'text/html',
+        'text/plain',
+    ];
+
+    /**
+     * Valid content languages
+     *
+     * en, ar, ja and es
+     *
+     * @var array $validContentLanguages
+     */
+    private static $validContentLanguages = [
+        'en',
+        'ar',
+        'ja',
+        'es',
+    ];
+
+    /**
+     * Valid accept types
+     *
+     * json and csv
+     *
+     * @var array $validAcceptTypes
+     */
+    private static $validAcceptTypes = [
+        'application/json',
+        'text/csv',
+    ];
+
+    /**
+     * Valid accept languages
+     *
+     * @var array $validAcceptLanguages
+     */
+    private static $validAcceptLanguages = [
+        'en',
+        'ar',
+        'de',
+        'es',
+        'fr',
+        'it',
+        'ja',
+        'ko',
+        'pt-br',
+        'zh-cn',
+        'zh-tw',
+    ];
+
+    /**
      * A valid ISO language regex (en)
      *
      * @var string $validISOLanguageRegex Regex for 2 characters
@@ -71,5 +129,45 @@ class Validation
         }
 
         return $match;
+    }
+
+    /**
+     * Check if valid content type
+     *
+     * @return boolean
+     */
+    public static function isValidContentType($contentType)
+    {
+        return in_array($contentType, self::$validContentTypes);
+    }
+
+    /**
+     * Check if valid content language
+     *
+     * @return boolean
+     */
+    public static function isValidContentLanguage($language)
+    {
+        return in_array($language, self::$validContentLanguages);
+    }
+
+    /**
+     * Check if valid accept type
+     *
+     * @return boolean
+     */
+    public static function isValidAcceptType($type)
+    {
+        return in_array($type, self::$validAcceptTypes);
+    }
+
+    /**
+     * Check if valid accept language
+     *
+     * @return boolean
+     */
+    public static function isValidAcceptLanguage($language)
+    {
+        return in_array($language, self::$validAcceptLanguages);
     }
 }

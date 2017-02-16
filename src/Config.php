@@ -174,40 +174,40 @@ class Config
     public function __construct($config)
     {
         // Throw exceptions on essentials
-        if (!isset($config['url']) || empty($config['url'])) {
+        if (empty($config['url'])) {
             throw new CustomException('Missing Watson Personality API Endpoint');
         } else {
-            $this->url = (string)$config['url'];
+            $this->url = (string) $config['url'];
         }
 
-        if (!isset($config['username']) || empty($config['username'])) {
+        if (empty($config['username'])) {
             throw new CustomException('Missing Watson Personality API Username');
         } else {
-            $this->username = (string)$config['username'];
+            $this->username = (string) $config['username'];
         }
 
-        if (!isset($config['password']) || empty($config['password'])) {
+        if (empty($config['password'])) {
             throw new CustomException('Missing Watson Personality API Password');
         } else {
-            $this->password = (string)$config['password'];
+            $this->password = (string) $config['password'];
         }
 
         // optionals
-        if (isset($config['cache']) && !empty($config['cache'])) {
-            $this->cache = (bool)$config['cache'];
+        if (!empty($config['cache'])) {
+            $this->cache = (bool) $config['cache'];
         }
 
         // I've stuck with the snake case that IBM use in their queries
-        if (isset($config['raw_scores']) && !empty($config['raw_scores'])) {
-            $this->rawScores = (bool)$config['raw_scores'];
+        if (!empty($config['raw_scores'])) {
+            $this->rawScores = (bool) $config['raw_scores'];
         }
 
-        if (isset($config['consumption_preferences']) && !empty($config['consumption_preferences'])) {
-            $this->includeConsumption = (bool)$config['consumption_preferences'];
+        if (!empty($config['consumption_preferences'])) {
+            $this->includeConsumption = (bool) $config['consumption_preferences'];
         }
 
-        if (isset($config['version']) && !empty($config['version'])) {
-            $this->version = (string)$config['version'];
+        if (!empty($config['version'])) {
+            $this->version = (string) $config['version'];
         } else {
             $this->version = date('Y-m-d');
         }
@@ -222,7 +222,7 @@ class Config
     {
         $queryParams = [
           'raw_scores' => $this->rawScores ? 'true' : 'false',
-          'consumption_preferences' => (string)$this->includeConsumption ? 'true' : 'false',
+          'consumption_preferences' => (string) $this->includeConsumption ? 'true' : 'false',
           'version' => $this->version,
         ];
 

@@ -101,7 +101,7 @@ class Validation
      */
     public static function isValidVersionRegex($version)
     {
-        return (bool)preg_match(self::$validVersionRegex, $version);
+        return (bool) preg_match(self::$validVersionRegex, $version);
     }
 
     /**

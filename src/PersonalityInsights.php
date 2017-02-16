@@ -84,8 +84,10 @@ class PersonalityInsights
      */
     public function getInsights()
     {
-        $cacheKey = '__watson_personality_insights_' .
-            md5($this->originalText) . '_';
+        $cacheKey = sprintf(
+            '__watson_personality_insights_%s_',
+            md5($this->originalText)
+        );
 
         // Temporary
         //

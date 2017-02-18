@@ -63,9 +63,9 @@ class ContentItem
      * stripped from HTML content before it is analyzed; plain text is
      * processed as submitted. = ['text/plain', 'text/html']
      *
-     * @var string $contentType
+     * @var string $contenttype
      */
-    private $contentType;
+    private $contenttype;
 
     /**
      * Language (optional)
@@ -93,9 +93,9 @@ class ContentItem
      * identify hierarchical relationships between posts/replies,
      * messages/replies, and so on.
      *
-     * @var string $parentId
+     * @var string $parentid
      */
-    private $parentId;
+    private $parentid;
 
     /**
      * Reply (optional)
@@ -122,8 +122,46 @@ class ContentItem
      *
      * @param array $config
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
-        //
+        $this->content = $config['text'];
+        $this->id = $config['id'] || md5($config['text']);
+        $this->created = !empty($config['created']) ? $config['created'] : 0;
+        $this->updated = !empty($config['updated']) ? $config['updated'] : 0;
+        $this->contenttype = !empty($config['contenttype']) ? $config['contenttype'] : 'text/plain';
+        $this->language = !empty($config['language']) ? $config['language'] : 'en';
+        $this->parentid = !empty($config['parentid']) ? $config['parentid'] :  null;
+        $this->reply= !empty($config['reply']) ? $config['reply'] : false;
+        $this->forward = !empty($config['forward']) ? $config['forward'] : false;
+    }
+
+    /**
+     * Returns an representation of the content item
+     *
+     * @return array
+     */
+    public function getContentItemArray()
+    {
+        return [
+            'content' => $this->content,
+            'id' => $this->id,
+            'created' => $this->created,
+            'updated' => $this->updated,
+            'contenttype' => $this->contenttype,
+            'language' => $this->language,
+            'parentid' => $this->parentid,
+            'reply' => $this->reply,
+            'forward' => $thos->forward,
+        ];
+    }
+
+    /**
+     * Returns a JSON representation of the content item
+     *
+     * @return string
+     */
+    public function getContentItemJson()
+    {
+        return json_encode($this->getContentItemArray());
     }
 }

@@ -125,7 +125,7 @@ class ContentItem
     public function __construct(array $config)
     {
         $this->content = $config['text'];
-        $this->id = $config['id'] || md5($config['text']);
+        $this->id = !empty($config['id']) ? $config['id'] : md5($config['text']);
         $this->created = !empty($config['created']) ? $config['created'] : 0;
         $this->updated = !empty($config['updated']) ? $config['updated'] : 0;
         $this->contenttype = !empty($config['contenttype']) ? $config['contenttype'] : 'text/plain';

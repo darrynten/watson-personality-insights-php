@@ -44,7 +44,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $config = (array)json_decode(file_get_contents('ctests/mocks/redentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 

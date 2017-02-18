@@ -28,7 +28,7 @@ class CustomException extends Exception
      * @param integer   $code     The error code to throw
      * @param Exception $previous The previous exception
      */
-    public function __construct($message = "", $code = 0, Exception $previous = null)
+    public function __construct(string $message = '', int $code = 0, Exception $previous = null)
     {
         // Construct message from JSON if required.
         if (preg_match('/^[\[\{]\"/', $message)) {

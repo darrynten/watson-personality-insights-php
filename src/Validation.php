@@ -99,7 +99,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidVersionRegex($version)
+    public static function isValidVersionRegex(string $version)
     {
         return (bool) preg_match(self::$validVersionRegex, $version);
     }
@@ -116,7 +116,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidLanguageRegex($language)
+    public static function isValidLanguageRegex(string $language)
     {
         $match = false;
 
@@ -136,7 +136,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidContentType($contentType)
+    public static function isValidContentType(string $contentType)
     {
         return in_array($contentType, self::$validContentTypes);
     }
@@ -146,7 +146,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidContentLanguage($language)
+    public static function isValidContentLanguage(string $language)
     {
         return in_array($language, self::$validContentLanguages);
     }
@@ -156,7 +156,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidAcceptType($type)
+    public static function isValidAcceptType(string $type)
     {
         return in_array($type, self::$validAcceptTypes);
     }
@@ -166,7 +166,7 @@ class Validation
      *
      * @return boolean
      */
-    public static function isValidAcceptLanguage($language)
+    public static function isValidAcceptLanguage(string $language)
     {
         return in_array($language, self::$validAcceptLanguages);
     }

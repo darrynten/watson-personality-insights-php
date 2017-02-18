@@ -176,5 +176,4 @@ when contributing you update the tests. For more info see CONTRIBUTING.md
 ## Acknowledgements
 
 * [Dmitry Semenov](https://github.com/mxnr), as always.
-
 * Add yourself here!

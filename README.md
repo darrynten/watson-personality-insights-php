@@ -136,6 +136,13 @@ format for that first version. If you specify a date that is in the future
 or otherwise later than the most recent version, the service returns the
 response format for the latest version.
 
+### Credentials
+
+You can download your credentials in a `json` file, or get them from the
+developer console.
+
+[Details on IBM](https://www.ibm.com/watson/developercloud/doc/getting_started/gs-credentials.shtml)
+
 ### Unit tests
 
 Test coverage is 100%, but you must include your `credentials.json` in

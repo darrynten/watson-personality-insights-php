@@ -9,7 +9,7 @@ class ContentItemTest extends PHPUnit_Framework_TestCase
 {
     public function testNewContentItem()
     {
-        // $contentItem = new ContentItem([], []);
-        // $this->assertInstanceOf(ContentItem::class, $contentItem);
+        $contentItem = new ContentItem([], []);
+        $this->assertInstanceOf(ContentItem::class, $contentItem);
     }
 }

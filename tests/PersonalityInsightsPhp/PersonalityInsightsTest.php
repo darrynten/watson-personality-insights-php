@@ -189,7 +189,6 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
         $instance->addText('xxx');
 
         $instance->config->getQueryUrl();
-        $instance->config->getQueryUrl();
 
         $instance->getInsights();
     }
@@ -216,7 +215,6 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
             $contentItem = new ContentItem($contentConfig);
 
             $instance->addNewContentItem($contentItem);
-
 
             $insights = $instance->getInsights();
         }

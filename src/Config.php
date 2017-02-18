@@ -266,16 +266,6 @@ class Config
     }
 
     /**
-     * Returns the prepared API endpoint URL
-     *
-     * @return string
-     */
-    public function getQueryUrl()
-    {
-        return $this->url . '/v3/profile?' . $this->getPersonalityInsightsQueryVariables();
-    }
-
-    /**
      * Gets the Authentication URL
      *
      * @return string

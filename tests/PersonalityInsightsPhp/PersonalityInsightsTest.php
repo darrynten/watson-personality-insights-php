@@ -161,7 +161,6 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
         $text = file_get_contents('tests/mocks/textSample.txt');
 
         $config = [
-            'url' => 'http://localhost:8082/foo',
             'username' => 'xx',
             'password' => 'xx',
             'cache' => true,
@@ -183,7 +182,6 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
         $contentItem->getContentItemJson();
 
         $instance->addNewContentItem($contentItem);
-
 
         $instance->contentItems->getContentItemsContainerJson();
         $instance->contentItems->getContentItemsContainerArray();
@@ -208,8 +206,6 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
         $insights = $instance->getInsights();
         $instance->addText('xxx');
-
-        $instance->config->getQueryUrl();
 
         $instance->getInsights();
     }

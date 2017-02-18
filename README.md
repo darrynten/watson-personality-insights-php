@@ -14,7 +14,7 @@ For PHP 7.0+
 ### Install
 
 ```bash
-composer require darrynten/watson-personality-insights
+composer require darrynten/watson-personality-insights-php
 ```
 
 ### Usage

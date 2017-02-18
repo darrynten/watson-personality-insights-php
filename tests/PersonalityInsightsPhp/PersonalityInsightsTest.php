@@ -4,8 +4,10 @@ namespace DarrynTen\PersonalityInsightsPhp\Tests\PersonalityInsightsPhp;
 
 use PHPUnit_Framework_TestCase;
 use InterNations\Component\HttpMock\PHPUnit\HttpMockTrait;
+use ReflectionClass;
 
 use DarrynTen\PersonalityInsightsPhp\PersonalityInsights;
+use DarrynTen\PersonalityInsightsPhp\ContentItem;
 use DarrynTen\PersonalityInsightsPhp\CustomException;
 
 class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
@@ -34,7 +36,10 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
 
         $instance = new PersonalityInsights($config);
         $this->assertInstanceOf(PersonalityInsights::class, $instance);
@@ -42,41 +47,120 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
 
         $instance = new PersonalityInsights($config);
 
-        $this->assertEquals(true, $instance->config->cache);
-        $instance->setCaching(false);
-        $this->assertEquals(false, $instance->config->cache);
-        $instance->setCaching(true);
+        $instance->config->setConsumptionPreferences(true);
+        $instance->config->setRawScores(true);
+        $instance->config->setCaching(true);
+        $instance->config->setVersion('2017-01-01');
+        $instance->config->setContentTypeHeader('application/json');
+        $instance->config->setContentLanguageHeader('en');
+        $instance->config->setAcceptHeader('application/json');
+        $instance->config->setAcceptLanguageHeader('en');
+        $instance->config->setOptOut(true);
+        $instance->config->setCsvHeaders(false);
     }
 
-    public function testGetInsights()
+    public function testSetExceptionsVersion()
     {
-        if (getenv('DO_LIVE_API_TESTS') == "true") {
-            $config = (array)json_decode(file_get_contents('credentials.json'));
-            $instance = new PersonalityInsights($config);
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
 
-            $instance->setText('');
+        $instance = new PersonalityInsights($config);
 
-            $insights = $instance->getInsights();
-        }
+        $instance->config->setConsumptionPreferences('x');
+        $instance->config->setRawScores('x');
+        $instance->config->setOptOut('x');
+        $instance->config->setCsvHeaders('x');
+
+        $this->expectException(CustomException::class);
+        $instance->config->setVersion('xxx');
+    }
+
+    public function testSetExceptionsContentTypeHeader()
+    {
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+
+        $instance->config->setConsumptionPreferences('x');
+        $instance->config->setRawScores('x');
+        $instance->config->setOptOut('x');
+        $instance->config->setCsvHeaders('x');
+
+        $this->expectException(CustomException::class);
+        $instance->config->setContentTypeHeader('xxx');
+    }
+
+    public function testSetExceptionsContentLanguageHeader()
+    {
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+
+        $instance->config->setConsumptionPreferences('x');
+        $instance->config->setRawScores('x');
+        $instance->config->setOptOut('x');
+        $instance->config->setCsvHeaders('x');
+
+        $this->expectException(CustomException::class);
+        $instance->config->setContentLanguageHeader('xxx');
+    }
+
+    public function testSetExceptionsContentAcceptHeader()
+    {
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+
+        $instance->config->setConsumptionPreferences('x');
+        $instance->config->setRawScores('x');
+        $instance->config->setOptOut('x');
+        $instance->config->setCsvHeaders('x');
+
+        $this->expectException(CustomException::class);
+        $instance->config->setAcceptHeader('xxx');
+    }
+
+    public function testSetExceptionsContentAcceptLanguageHeader()
+    {
+        $config = [
+            'username' => 'xxx',
+            'password' => 'xxx',
+        ];
+
+        $instance = new PersonalityInsights($config);
+
+        $instance->config->setConsumptionPreferences('x');
+        $instance->config->setRawScores('x');
+        $instance->config->setOptOut('x');
+        $instance->config->setCsvHeaders('x');
+
+        $this->expectException(CustomException::class);
+        $instance->config->setAcceptLanguageHeader('xxx');
     }
 
     public function testOptionals()
     {
-        $this->http->mock
-            ->when()
-                ->methodIs('POST')
-                ->pathIs('/foo')
-            ->then()
-                ->body('{}')
-            ->end();
-        $this->http->setUp();
+        $text = file_get_contents('tests/mocks/textSample.txt');
 
         $config = [
-            'url' => 'http://localhost:8082/foo',
             'username' => 'xx',
             'password' => 'xx',
             'cache' => true,
@@ -88,45 +172,68 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
         $instance = new PersonalityInsights($config);
         $this->assertInstanceOf(PersonalityInsights::class, $instance);
 
-        $instance->setText('xxx');
-        $this->assertEquals('xxx', $instance->originalText);
+        $instance->addText($text);
 
-        $instance->config->getQueryUrl();
+        $contentConfig = [
+            'text' => $text
+        ];
+
+        $contentItem = new ContentItem($contentConfig);
+        $contentItem->getContentItemJson();
+
+        $instance->addNewContentItem($contentItem);
+
+        $instance->contentItems->getContentItemsContainerJson();
+        $instance->contentItems->getContentItemsContainerArray();
+
+        $mockRequest = \Mockery::mock(
+            'DarrynTen\PersonalityInsightsPhp\RequestHandler[request]',
+            [
+                $instance->config,
+                $instance->contentItems,
+            ]
+        );
+
+        $mockRequest->shouldReceive('request')
+            ->once()
+            ->andReturn();
+
+        // Need to inject mock to a private property
+        $reflection = new ReflectionClass($instance);
+        $reflectedClient = $reflection->getProperty('request');
+        $reflectedClient->setAccessible(true);
+        $reflectedClient->setValue($instance, $mockRequest);
+
+        $insights = $instance->getInsights();
+        $instance->addText('xxx');
 
         $instance->getInsights();
     }
 
-    public function testException()
+    public function testLiveCall()
     {
-        $this->expectException(CustomException::class);
+        if (getenv('DO_LIVE_API_TESTS') == "true") {
+            $config = (array) json_decode(file_get_contents('credentials.json'));
+            $config['cache'] = true;
+            $config['raw_scores'] = true;
+            $config['consumption_preferences'] = true;
+            $config['version'] = '2017-01-01';
 
-        $this->http->mock
-            ->when()
-                ->methodIs('POST')
-                ->pathIs('/foo')
-            ->then()
-                ->body('{}')
-            ->end();
-        $this->http->setUp();
+            $text = file_get_contents('tests/mocks/textSample.txt');
 
-        $config = [
-            'url' => 'http://localhost/foo',
-            'username' => 'xx',
-            'password' => 'xx',
-            'cache' => true,
-            'raw_scores' => true,
-            'consumption_preferences' => true,
-            'version' => '2017-01-01',
-        ];
+            $instance = new PersonalityInsights($config);
 
-        $instance = new PersonalityInsights($config);
-        $this->assertInstanceOf(PersonalityInsights::class, $instance);
+            $instance->addText($text);
 
-        $instance->setText('xxx');
-        $this->assertEquals('xxx', $instance->originalText);
+            $contentConfig = [
+                'text' => $text
+            ];
 
-        $instance->config->getQueryUrl();
+            $contentItem = new ContentItem($contentConfig);
 
-        $instance->getInsights();
+            $instance->addNewContentItem($contentItem);
+
+            $insights = $instance->getInsights();
+        }
     }
 }

@@ -16,11 +16,39 @@ use Psr\Cache\CacheItemPoolInterface;
 class Config
 {
     /**
-     * The API endpoint
+     * The version of the Watson API to use
      *
-     * @var string $endpoint
+     * @var string $apiVersion
      */
-    private $url;
+    private $apiVersion = 'v3';
+
+    /**
+     * The common base URL
+     *
+     * @var string $baseUrl
+     */
+    private $baseUrl = 'https://gateway.watsonplatform.net';
+
+    /**
+     * The API URL namespace
+     *
+     * @var string $urlNamespace
+     */
+    private $apiNamespace = 'personality-insights/api';
+
+    /**
+     * The Auth namespace
+     *
+     * @var string $authNamespace
+     */
+    private $authNamespace = 'authorization/api';
+
+    /**
+     * The version of the auth service
+     *
+     * @var string $authVersion
+     */
+    private $authVersion = 'v1';
 
     /**
      * Username for the platform
@@ -81,6 +109,8 @@ class Config
      * If true, column labels are returned with a CSV response; if false
      * (the default), they are not. Applies only when the Accept header
      * is set to text/csv.
+     *
+     * TODO csv
      *
      * @var string $csvHeaders
      */
@@ -167,47 +197,53 @@ class Config
     private $acceptLanguageHeader;
 
     /**
+     * Whether or not to allow IBM to keep a copy of your text
+     *
+     * Default is OFF to protect privacy
+     *
+     * You must explicitly enable this if you wish to help Warson
+     * learn from your text
+     *
+     * @var boolean $optOutOfLogging
+     */
+    public $optOutOfLogging = true;
+
+    /**
      * Construct the config object
      *
      * @param array $config An array of configuration options
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         // Throw exceptions on essentials
-        if (!isset($config['url']) || empty($config['url'])) {
-            throw new CustomException('Missing Watson Personality API Endpoint');
-        } else {
-            $this->url = (string)$config['url'];
-        }
-
-        if (!isset($config['username']) || empty($config['username'])) {
+        if (empty($config['username'])) {
             throw new CustomException('Missing Watson Personality API Username');
         } else {
-            $this->username = (string)$config['username'];
+            $this->username = (string) $config['username'];
         }
 
-        if (!isset($config['password']) || empty($config['password'])) {
+        if (empty($config['password'])) {
             throw new CustomException('Missing Watson Personality API Password');
         } else {
-            $this->password = (string)$config['password'];
+            $this->password = (string) $config['password'];
         }
 
         // optionals
-        if (isset($config['cache']) && !empty($config['cache'])) {
-            $this->cache = (bool)$config['cache'];
+        if (!empty($config['cache'])) {
+            $this->cache = (bool) $config['cache'];
         }
 
         // I've stuck with the snake case that IBM use in their queries
-        if (isset($config['raw_scores']) && !empty($config['raw_scores'])) {
-            $this->rawScores = (bool)$config['raw_scores'];
+        if (!empty($config['raw_scores'])) {
+            $this->rawScores = (bool) $config['raw_scores'];
         }
 
-        if (isset($config['consumption_preferences']) && !empty($config['consumption_preferences'])) {
-            $this->includeConsumption = (bool)$config['consumption_preferences'];
+        if (!empty($config['consumption_preferences'])) {
+            $this->includeConsumption = (bool) $config['consumption_preferences'];
         }
 
-        if (isset($config['version']) && !empty($config['version'])) {
-            $this->version = (string)$config['version'];
+        if (!empty($config['version'])) {
+            $this->version = (string) $config['version'];
         } else {
             $this->version = date('Y-m-d');
         }
@@ -222,7 +258,7 @@ class Config
     {
         $queryParams = [
           'raw_scores' => $this->rawScores ? 'true' : 'false',
-          'consumption_preferences' => (string)$this->includeConsumption ? 'true' : 'false',
+          'consumption_preferences' => (string) $this->includeConsumption ? 'true' : 'false',
           'version' => $this->version,
         ];
 
@@ -230,12 +266,170 @@ class Config
     }
 
     /**
-     * Returns the prepared API endpoint URL
+     * Gets the Authentication URL
      *
      * @return string
      */
-    public function getQueryUrl()
+    public function getAuthUrl()
     {
-        return $this->url . '/v3/profile?' . $this->getPersonalityInsightsQueryVariables();
+        $return = $this->baseUrl .
+          '/' . $this->authNamespace .
+          '/' . $this->authVersion .
+          '/token?url=' . $this->baseUrl . '/' . $this->apiNamespace;
+
+        return $return;
+    }
+
+    /**
+     * Gets the Authentication header
+     *
+     * @return array
+     */
+    public function getAuthHeader()
+    {
+        return [
+            'auth' => [
+                $this->username,
+                $this->password,
+            ],
+        ];
+    }
+
+    /**
+     * Gets the API URL
+     *
+     * @return string
+     */
+    public function getApiUrl()
+    {
+        $return = $this->baseUrl .
+          '/' . $this->apiNamespace .
+          '/' . $this->apiVersion .
+          '/profile?' .
+          $this->getPersonalityInsightsQueryVariables();
+
+        return $return;
+    }
+
+    /**
+     * Set the consumption preference flag
+     *
+     * @var boolean $flag Whether or not to include consumption prefereces
+     */
+    public function setConsumptionPreferences(bool $flag)
+    {
+        $this->includeConsumption = $flag;
+    }
+
+    /**
+     * Set the raw scores flag
+     *
+     * @var boolean $flag Whether or not to use raw scores
+     */
+    public function setRawScores(bool $flag)
+    {
+        $this->rawScores = $flag;
+    }
+
+    /**
+     * Set the caching flag
+     *
+     * @var boolean $flag Whether or not to use raw scores
+     */
+    public function setCaching(bool $flag)
+    {
+        $this->cache = $flag;
+    }
+
+    /**
+     * Set the version if it is valid
+     *
+     * @var string $version
+     */
+    public function setVersion(string $version)
+    {
+        if (Validation::isValidVersionRegex($version)) {
+            $this->version = $version;
+        } else {
+            throw new CustomException('Malformed version');
+        }
+    }
+
+    /**
+     * Set the content type header
+     *
+     * @var string $header
+     */
+    public function setContentTypeHeader(string $header)
+    {
+        if (Validation::isValidContentType($header)) {
+            $this->contentTypeHeader = $header;
+        } else {
+            throw new CustomException('Invalid content type');
+        }
+    }
+
+    /**
+     * Set the content language header
+     *
+     * @var string $header
+     */
+    public function setContentLanguageHeader(string $header)
+    {
+        if (Validation::isValidContentLanguage($header)) {
+            $this->contentLanguageHeader = $header;
+        } else {
+            throw new CustomException('Invalid language');
+        }
+    }
+
+    /**
+     * Set accept  header
+     *
+     * @var string $header The accept language header
+     */
+    public function setAcceptHeader(string $header)
+    {
+        if (Validation::isValidAcceptType($header)) {
+            $this->acceptHeader = $header;
+        } else {
+            throw new CustomException('Invalid accept type');
+        }
+    }
+
+    /**
+     * Set accept language header
+     *
+     * @var string $header The accept language header
+     */
+    public function setAcceptLanguageHeader(string $header)
+    {
+        if (Validation::isValidAcceptLanguage($header)) {
+            $this->acceptLanguageHeader = $header;
+        } else {
+            throw new CustomException('Invalid accept language');
+        }
+    }
+
+    /**
+     * Set opt out
+     *
+     * @var boolean $flag No logging
+     */
+    public function setOptOut(bool $flag)
+    {
+        $this->optOutOfLogging = $flag;
+    }
+
+    /**
+     * Set csv headers
+     *
+     * TODO csv
+     *
+     * @var boolean $flag Use csv headers
+     */
+    public function setCsvHeaders(bool $flag)
+    {
+        $this->csvHeaders = $flag;
     }
 }

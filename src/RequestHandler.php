@@ -13,6 +13,7 @@ namespace DarrynTen\PersonalityInsightsPhp;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
 
 /**
  * Request Handler Class
@@ -31,25 +32,18 @@ class RequestHandler
     private $client;
 
     /**
-     * The PersonalityInsights url
+     * The returned base64 encoded auth token
      *
-     * @var string $url
+     * @var string $token
      */
-    private $url = 'https://gateway.watsonplatform.net/personality-insights/api/v3/profile';
+    private $token;
 
     /**
-     * Personality Insights Username
+     * The expire time of the token
      *
-     * @var string $username
+     * @var \DateTime $tokenExpireTime
      */
-    private $username;
-
-    /**
-     * Personality Insights Password
-     *
-     * @var string $password
-     */
-    private $password;
+    private $tokenExpireTime;
 
     /**
      * HTTP Headers
@@ -64,31 +58,77 @@ class RequestHandler
      * @param string $username The username
      * @param string $password The password
      */
-    public function __construct($config)
+    public function __construct()
     {
-        $this->username = $config['username'];
-        $this->password = $config['password'];
-        $this->url = $config['url'];
+        $this->tokenExpireTime = new \DateTime();
 
         $this->client = new Client();
     }
 
     /**
+     * Make request to Watson Auth API for the new token
+     */
+    private function requestToken()
+    {
+        $tokenResponse = $this->client->request(
+            'GET',
+            $this->config->getAuthUrl(),
+            $this->config->getAuthHeader()
+        );
+
+
+        $this->token = $tokenResponse->getBody()->getContents();
+
+        $this->tokenExpireTime->modify(
+            sprintf('+%s seconds', 3600)
+        );
+    }
+
+    /**
+     * Get token for Watson
+     *
+     * @return string
+     */
+    private function getAuthToken()
+    {
+        // Generate a new token if current is expired or empty
+        if (!$this->token || new \DateTime() > $this->tokenExpireTime) {
+            $this->requestToken();
+        }
+
+        return $this->token;
+    }
+
+    /**
      * Makes a request to Personality Insights
+     *
+     * @param \Config $config The client config
+     * @param \ContentItems $contentItems The collection of content
      *
      * @return object
      *
      * @throws PersonalityInsightsApiException
      */
-    public function request(array $options = [], array $parameters = [])
+    public function request(Config $config, ContentItems $contentItems)
     {
-        try {
-            $response = $this->client->request('POST', $this->url, $options);
-            return json_decode($response->getBody());
-        } catch (RequestException $exception) {
-            $message = $exception->getMessage();
+        $this->config = $config;
 
-            throw new CustomException($message, $exception->getCode(), $exception);
-        }
+        $options = [
+            'headers' => [
+                'X-Watson-Authorization-Token' => $this->getAuthToken(),
+                'X-Watson-Learning-Opt-Out' => $this->config->optOutOfLogging,
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Accept-Language' => 'en'
+            ],
+            'body' => $contentItems->getContentItemsContainerJson()
+        ];
+
+        $response = $this->client->request(
+            'POST',
+            $config->getApiUrl(),
+            $options
+        );
+        return json_decode($response->getBody());
     }
 }

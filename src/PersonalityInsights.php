@@ -46,9 +46,9 @@ class PersonalityInsights
     /**
      * The text to perform actions on
      *
-     * @var string $originalText
+     * @var string $text
      */
-    public $originalText;
+    public $text;
 
     /**
      * Construct
@@ -57,25 +57,48 @@ class PersonalityInsights
      *
      * @param array $config Configuration options
      */
-    public function __construct($config)
+    public function __construct(array $config)
     {
         $this->config = new Config($config);
         $this->cache = new AnyCache();
+
+        $this->contentItems = new ContentItems();
 
         $this->request = new RequestHandler($config);
     }
 
     /**
-     * Set the desired text
+     * Add some plain text
      *
-     * @param string $text The text to be analysed
+     * This is a helper to add a content item just via a string and
+     * it generates and adds a \ContentItem object to its collection.
      *
-     * @return void
+     * @param string $text
      */
-    public function setText($text)
+    public function addText(string $text)
     {
-        $this->originalText = $text;
+        $contentConfig = [
+            'text' => $text
+        ];
+
+        $contentItem = new ContentItem($contentConfig);
+
+        $this->contentItems->addContentItemToCollection($contentItem);
     }
+
+    /**
+     * Add a new proper content item to the collection
+     *
+     * @param ContentItem $contentItem
+     */
+    public function addNewContentItem(ContentItem $contentItem)
+    {
+        $this->contentItems->addContentItemToCollection($contentItem);
+    }
+
+    /**
+     * TODO modify and remove
+     */
 
     /**
      * Get the entity analysis
@@ -84,28 +107,16 @@ class PersonalityInsights
      */
     public function getInsights()
     {
-        $cacheKey = '__watson_personality_insights_' .
-            md5($this->originalText) . '_';
+        $cacheKey = sprintf(
+            '__watson_personality_insights_%s_',
+            md5(serialize($this->contentItems))
+        );
 
-        // Temporary
-        //
-        // if (!$result = unserialize($this->cache->get($cacheKey))) {
-            $result = $this->request->request([], []);
-            // $this->cache->put($cacheKey, serialize($result), 9999999);
-        // }
+        if (!$result = unserialize($this->cache->get($cacheKey)) || !$this->config->cache) {
+            $result = $this->request->request($this->config, $this->contentItems);
+            $this->cache->put($cacheKey, serialize($result), 9999999);
+        }
 
         return $result;
-    }
-
-    /**
-     * Enable and disable internal cache
-     *
-     * @param boolean $value The state
-     *
-     * @return void
-     */
-    public function setCaching($value)
-    {
-        $this->config->cache = (bool)$value;
     }
 }

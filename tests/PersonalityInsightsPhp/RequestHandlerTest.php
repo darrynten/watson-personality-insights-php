@@ -2,8 +2,18 @@
 
 namespace DarrynTen\PersonalityInsightsPhp\Tests\PersonalityInsightsPhp;
 
+use DarrynTen\PersonalityInsightsPhp\PersonalityInsights;
+use DarrynTen\PersonalityInsightsPhp\ContentItem;
+use DarrynTen\PersonalityInsightsPhp\Config;
 use DarrynTen\PersonalityInsightsPhp\RequestHandler;
+use DarrynTen\PersonalityInsightsPhp\CustomException;
 use InterNations\Component\HttpMock\PHPUnit\HttpMockTrait;
+use ReflectionClass;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
 
 class RequestHandlerTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,48 +47,82 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testRequest()
     {
+        $data = '{\'key\':\'data\'}';
+
         $this->http->mock
             ->when()
                 ->methodIs('POST')
                 ->pathIs('/foo')
             ->then()
-                ->body('{}')
+                ->body($data)
             ->end();
         $this->http->setUp();
 
         $config = [
-            'username' => 'x',
-            'password' => 'x',
             'url' => 'http://localhost:8082/foo',
+            'username' => 'xx',
+            'password' => 'xx',
+            'cache' => true,
+            'raw_scores' => true,
+            'consumption_preferences' => true,
+            'version' => '2017-01-01',
         ];
 
-        $request = new RequestHandler($config);
+        $text = 'xxx';
+        $instance = new PersonalityInsights($config);
+        $this->assertInstanceOf(PersonalityInsights::class, $instance);
 
-        $this->assertEquals(json_decode('{}'), $request->request([], []));
-    }
+        $instance->addText($text);
 
-    public function testRequestEmptyResponse()
-    {
-        $this->http->mock
-            ->when()
-                ->methodIs('POST')
-                ->pathIs('/foo')
-            ->then()
-                ->body('{ value: 1 }')
-            ->end();
-        $this->http->setUp();
-
-        $config = [
-            'username' => 'x',
-            'password' => 'x',
-            'url' => 'http://localhost:8082/foo',
+        $contentConfig = [
+            'text' => $text
         ];
 
-        $request = new RequestHandler($config);
+        $contentItem = new ContentItem($contentConfig);
+        $contentItem->getContentItemJson();
 
-        $this->assertEquals(
-            json_decode('{ body: { code: 1 } }'),
-            $request->request([], [])
+        $instance->addNewContentItem($contentItem);
+
+        $instance->contentItems->getContentItemsContainerJson();
+        $instance->contentItems->getContentItemsContainerArray();
+
+        $configObject = new Config($config);
+        $request = new RequestHandler($configObject);
+
+
+        $options = [
+            'headers' => [
+                'X-Watson-Authorization-Token' => 'xxx',
+                'Content-Type' => 'application/json; charset=utf-8',
+                'Accept' => 'application/json',
+                'Accept-Language' => 'en'
+            ],
+            'body' => $instance->contentItems->getContentItemsContainerJson()
+        ];
+
+
+        $mockClient = \Mockery::mock(
+            'Client'
         );
+
+        $localClient = new Client();
+
+        $localResult = $localClient->request(
+            'POST',
+            'http://localhost:8082/foo',
+            []
+        );
+
+        $mockClient->shouldReceive('request')
+            ->once()
+            ->andReturn($localResult);
+
+        // Need to inject mock to a private property
+        $reflection = new ReflectionClass($request);
+        $reflectedClient = $reflection->getProperty('client');
+        $reflectedClient->setAccessible(true);
+        $reflectedClient->setValue($request, $mockClient);
+
+        $request->request($configObject, $instance->contentItems);
     }
 }

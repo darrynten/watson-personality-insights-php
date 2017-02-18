@@ -216,12 +216,6 @@ class Config
     public function __construct(array $config)
     {
         // Throw exceptions on essentials
-        if (empty($config['url'])) {
-            throw new CustomException('Missing Watson Personality API Endpoint');
-        } else {
-            $this->url = (string) $config['url'];
-        }
-
         if (empty($config['username'])) {
             throw new CustomException('Missing Watson Personality API Username');
         } else {

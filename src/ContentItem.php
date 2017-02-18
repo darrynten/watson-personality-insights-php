@@ -151,7 +151,7 @@ class ContentItem
             'language' => $this->language,
             'parentid' => $this->parentid,
             'reply' => $this->reply,
-            'forward' => $thos->forward,
+            'forward' => $this->forward,
         ];
     }
 

@@ -165,6 +165,7 @@ Which will then do the live test.
 * Modify within ContentItems collection
 * Full error and exception handling
 * Manipulation of the results
+* Minimum text length configuration
 * CSV
 
 ## Contributing and Testing
@@ -175,3 +176,5 @@ when contributing you update the tests. For more info see CONTRIBUTING.md
 ## Acknowledgements
 
 * [Dmitry Semenov](https://github.com/mxnr), as always.
+
+* Add yourself here!

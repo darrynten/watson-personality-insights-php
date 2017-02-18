@@ -9,6 +9,8 @@
 A framework agnostic fully unit tested client for IBM Watson Personality
 insights API.
 
+For PHP 7.0+
+
 ### Install
 
 ```bash

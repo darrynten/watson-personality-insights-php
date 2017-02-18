@@ -36,7 +36,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testConstruct()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
         $this->assertInstanceOf(PersonalityInsights::class, $instance);
@@ -44,7 +44,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSet()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('ctests/mocks/redentials.json'));
 
         $instance = new PersonalityInsights($config);
 
@@ -62,7 +62,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSetExceptionsVersion()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 
@@ -77,7 +77,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSetExceptionsContentTypeHeader()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 
@@ -92,7 +92,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSetExceptionsContentLanguageHeader()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 
@@ -107,7 +107,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSetExceptionsContentAcceptHeader()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 
@@ -122,7 +122,7 @@ class PersonalityInsightsTest extends PHPUnit_Framework_TestCase
 
     public function testSetExceptionsContentAcceptLanguageHeader()
     {
-        $config = (array)json_decode(file_get_contents('credentials.json'));
+        $config = (array)json_decode(file_get_contents('tests/mocks/credentials.json'));
 
         $instance = new PersonalityInsights($config);
 

@@ -145,17 +145,18 @@ developer console.
 
 ### Unit tests
 
-Test coverage is 100%, but you must include your `credentials.json` in
-the root of the project (it is already in the `gitignore`).
-
-You can also include a live API test to see if everything is working on
-that end. You shouldn't have to though, but it can be useful.
+Test coverage is 100%, but you can also include a live API test to see
+if everything is working on that end. You shouldn't have to though,
+  but it can be useful.
 
 To do live test export 
 
 ```bash
 export DO_LIVE_API_TESTS=true
 ```
+
+You must also include your real `credentials.json` in
+the root of the project (it is already in the `gitignore`).
 
 Which will then do the live test.
 
